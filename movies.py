@@ -1,6 +1,6 @@
 class Movie:
 	def __init__(self,id,nom,dateSortie,video_release_date,lienImbd,unknownType,action,adventure,animation,children,
-              comedy,crime,documentary,drama,fantasy,filmNoir,horror,musical,mystery,romance,sciFi,thriller,war,western):
+              comedy,crime,documentary,drama,fantasy,filmNoir,horror,musical,mystery,romance,sciFi,thriller,war,western,vecteur):
 		self.id = id
 		self.nom = nom
 		self.dateSortie = dateSortie
@@ -25,3 +25,4 @@ class Movie:
 		self.thriller = int(thriller)
 		self.war = int(war)
 		self.western = int(western)
+		self.vecteur = vecteur
