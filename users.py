@@ -9,6 +9,7 @@ class User:
 		self.vecteurGenreVote = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 		self.vecteurGenre = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 		self.vecteurNormalise = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+		self.avg = 0.0
 
 	def normaliserVecteur(self):
 		for valeur in range(len(self.vecteurGenre)):
@@ -18,4 +19,17 @@ class User:
 		for valeur in range(len(self.vecteurNormalise)):
 			self.vecteurNormalise[valeur] = float("{0:.2f}".format(self.vecteurNormalise[valeur]))
 		#self.vecteurNormalise = divide(self.vecteurNormalise,max(self.vecteurNormalise))
+	def moyenne(self,dataset):
+		Total = 0.0
+		iteration = 0.0
+		for i in dataset.notes:
+			if(i.idUser > self.id):
+				break
+			if((self.id == i.idUser)):
+				Total = Total + i.note
+				iteration = iteration + 1
+		if(iteration == 0):
+			self.avg = 0
+		else:
+			self.avg = Total/iteration
 

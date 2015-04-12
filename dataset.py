@@ -5,6 +5,7 @@ import re
 import os
 import operator
 from numpy import multiply,add
+import pandas as pd
 
 class Dataset:
 	def __init__(self,FileUser,FileMovie,FileNotes):
