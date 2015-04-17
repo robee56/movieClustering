@@ -51,6 +51,7 @@ class Dataset:
 		return notes
 
 	def vecteurNotes(self):
+		#on affecte a l'utilisateur un vecteur en fonction de ses gouts (ses notes pour chaque film de chaque type ponderees)
 		notes = self.notes
 		films = self.movies
 		users = self.users

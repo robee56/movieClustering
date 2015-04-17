@@ -1,9 +1,11 @@
 from numpy import *
-
+import numpy as np
 def distEuclid(vecA,vecB):
+	#Distance euclidienne entre 2 vecteurs
 	return sqrt(sum(power(vecA - vecB,2)))
 
 def randCent(dataSet,k):
+	#Generation aleatoire de K centroides
 	n = shape(dataSet)[1]
 	centroids = mat(zeros((k,n)))
 	for j in range(n):
@@ -13,6 +15,7 @@ def randCent(dataSet,k):
 	return centroids
 
 def kMeans(dataSet, k):
+	#Algorithne des k-moyennes
 	m = shape(dataSet)[0]
 	clusterAssment = mat(zeros((m,2)))
 	centroids = randCent(dataSet, k)
@@ -25,10 +28,15 @@ def kMeans(dataSet, k):
 				distJI = distEuclid(centroids[j,:],dataSet[i,:])
 				if distJI < minDist:
 					minDist = distJI; minIndex = j
+			#Si un des elements change de centroide on repart pour un tour pour optimiser encore la distance globale
 			if clusterAssment[i,0] != minIndex: clusterChanged = True
+			#On ajoute l'assignation de cluster et la distance par rapport à son centre
 			clusterAssment[i,:] = minIndex,minDist**2
-		# print centroids
+		# On redefinit les centroides a partir de la moyenne du cluster
 		for cent in range(k):
 			ptsInClust = dataSet[nonzero(clusterAssment[:,0].A==cent)[0]]
 			centroids[cent,:] = mean(ptsInClust, axis=0)
+		#On affiche la somme des distances des k centroids par rapport aux donnes pour la comparer a l'algo genetique
+		print np.sum(clusterAssment[:,1])
+	
 	return centroids, clusterAssment

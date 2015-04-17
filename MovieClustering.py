@@ -10,6 +10,7 @@ from pylab import plot,show
 import operator
 from numpy import multiply
 import math
+from clustering import Clustering
 
 
 def listFilms(x,y):
@@ -68,7 +69,6 @@ def listeFilmsNonVu(j,listeKnn):
 	listeNotesNonVu = []
 	listeFilmsVu = []
 	userId = j
-	print listeKnn
 	for i in range(len(dataset.notes)):
 		notes = dataset.notes
 		if(notes[i].idUser in listeKnn):
@@ -81,15 +81,13 @@ def listeFilmsNonVu(j,listeKnn):
 				listeNotesNonVu[idx][1] = listeNotesNonVu[idx][1] + 1
 		if(notes[i].idUser > max(listeKnn)):
 			break
-	j = userId      
-	print dataset.users[j-1].id     
+	j = userId          
 	for i in dataset.notes:
 	    
 	    if(i.idUser == dataset.users[j-1].id):
 	        listeFilmsVu.append(i.idMovie)
 
 	i = 0
-	print len(listeFilmsVu)
 	while(i<len(listeFilmsNonVu)):
 	    if listeFilmsNonVu[i] in listeFilmsVu:
 	        listeFilmsNonVu.pop(i)
@@ -115,13 +113,18 @@ def listeFilmsNonVu(j,listeKnn):
 	print listeFilmVoir
 	for i in listeFilmVoir:
 	    print dataset.movies[i].nom
+	    print dataset.movies[i].vecteur
 
 
 
 
 
 def recommandation(k,j,clusterJ):
+
+	listePcsvalue=[]
+	listeKnn = []
 	for i in range(len(reducedDataset)):
+
 		pcsValue = -1
 		if(i!=j-1):
 			if(i>j-1):
@@ -135,9 +138,7 @@ def recommandation(k,j,clusterJ):
 	
 	for i in range(k):
 		maxV = max(listePcsvalue)
-		print "maxV : " + str(maxV)
 		indexV = listePcsvalue.index(max(listePcsvalue)) 
-		print "indexV : " + str(indexV)
 		listePcsvalue[indexV] = -1
 		listeKnn.append(indexV + 1)
 
@@ -186,7 +187,7 @@ for i in range(len(dataset.users)):
 	for j in range(20):
 
 		if(j==0):
-			reducedDataset[i,j] = float(dataset.users[i].age)/100
+			reducedDataset[i,j] = float(dataset.users[i].age)/10
 		if(j==1):
 			if(dataset.users[i].genre == "M"):
 				genre = 0
@@ -200,6 +201,9 @@ for i in range(len(dataset.users)):
 # print reducedDataset[0]
 
 users =  dataset.users
+clust = Clustering()
+
+print clust.GA(10,reducedDataset,18)
 centroids, clusterAssment = kMeans(reducedDataset,18)
 
 print "similarite 1,6" + str(pcs(users[0],users[5]))
@@ -208,13 +212,13 @@ print "similarite 2,6" + str(pcs(users[1],users[5]))
 
 
 
-listeKnn = []
-k = 10
-listePcsvalue = []
-j = 1
-print "Cluster J : " + str(clusterAssment[j-1])
-print clusterAssment[j-1][0,0] 
-recommandation(k,j,clusterAssment[j-1][0,0] )
+# listeKnn = []
+# k = 10
+# listePcsvalue = []
+# j = 1
+# print "Cluster J : " + str(clusterAssment[j-1])
+# print clusterAssment[j-1][0,0] 
+# recommandation(k,j,clusterAssment[j-1][0,0] )
 
 
 
