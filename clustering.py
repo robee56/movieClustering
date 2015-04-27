@@ -4,44 +4,39 @@ from random import randint
 import random as rnd
 import math
 import numpy as np
+import test
+
 class Clustering:
 	#Classe qui contient les algorithmes de clustering utilises dans le projet : K-means et Algorithme genetique
 	#Nous avons suivi l'implementation du livre de Russel et Norvig pour l'algorithme Genetique
 	#Nous avons egalement utilise le livre Machine learning in action pour la mise en place de K-mean
-	def __init__(self):
-		print 'kmeans : '
-		self.kmeans()
-		print 'GA : '
-		self.geneticAlgorithm()
+	def __init__(self,dataset,k):
+		self.data = dataset
+		self.k = k
+
 
 
 	### ALGORITHME GENETIQUE
 	def distEuclid(self,vecA,vecB):
 		#La distance euclidiennne calcule une distance metrique permettant de comparer deux vecteurs
-		return sqrt(sum(power(vecA - vecB,2)))
+		# return sqrt(sum(power(vecA - vecB,2)))
+		return np.linalg.norm(vecA-vecB)
 
-	def randCent(self,dataSet,k):
+	def randCent(self):
+		k = self.k
 		#RandCent genere aleatoirement des centroides dans l'espace des donnees
-		n = shape(dataSet)[1]
-		centroids = mat(zeros((k,n)))
-		for j in range(n):
-			minJ = min(dataSet[:,j])
-			rangeJ = float(max(dataSet[:,j]) - minJ)
-			centroids[:,j] = minJ + rangeJ * random.rand(k,1)
+		centroids = mat(zeros((k,self.shape)))
+		for j in range(self.shape):
+			centroids[:,j] = self.minJ[j] + self.rangeJ[j] * random.rand(k,1)
 		return centroids
 
-	def mutate(self,x,k):
+	def mutate(self,x):
+		k = self.k
 		#Mutate genere la mutation de l'individu X avec un nouveau centroid genere avec RandCent
-		centroid = self.randCent(self.data,k)
+		centroid = self.randCent()
 		x = np.array(x)
 		index = randint(0,k-1)
-		# print "X index"
-		# print x[index]
-		# print "centroid"
-		# print centroid[index]
 		x[index] = centroid[index]
-		# print("x apres centroid")
-		# print x
 		return x
 
 	def createChild(self,x,y,limite):
@@ -102,14 +97,14 @@ class Clustering:
 	        if x < cumulative_probability: break
 	    return item
 
-	def objectiveFunction(self,individu,k):
+	def objectiveFunction(self,individu):
+		k = self.k
 		#La fonction objective est une fonction qui a pour but de calculer la distance des centroides
 		#des donnes, la somme de ces distances permet de savoir que le minimum est le meilleur ensemble de centroides
-		m = shape(self.data)[0]
-		clusterAssment = mat(zeros((m,2)))
+		clusterAssment = mat(zeros((self.m,2)))
 		individu = np.array(individu)
 		# print individu
-		for i in range(m):
+		for i in range(self.m):
 			minDist = inf; minIndex = -1
 			for j in range(k):
 				distJI = self.distEuclid(individu[j,:],self.data[i,:])
@@ -120,40 +115,55 @@ class Clustering:
 
 		for cent in range(k):
 			ptsInClust = self.data[nonzero(clusterAssment[:,0].A==cent)[0]]
-			individu[cent,:] = mean(ptsInClust, axis=0)
+			if(ptsInClust.size != 0):
+				individu[cent,:] = mean(ptsInClust, axis=0)
 
-		return individu,np.sum(clusterAssment[:,1])
+		return individu,np.sum(clusterAssment[:,1]),clusterAssment
 
-	def GA(self,limite,dataSet,k):
+	def GA(self,limite):
+		k = self.k
 		#Algorithme repris de Russel et Norvig
 		#Algorithme global genetique incluant le crossover, mutation et selection
 		population = []
 		newpop = []
 		count = 0
-		self.data = dataSet
 		bestIndividuGlobal = 0
+		self.shape = shape(self.data)[1]
+		listmin = []
+		listrange = []
+		for j in range(self.shape):
+			listmin.append(min(self.data[:,j]))
+			listrange.append(float(max(self.data[:,j]) - listmin[j]))
+		self.minJ = listmin
+		self.rangeJ = listrange
+		
+		self.m = shape(self.data)[0]
 		#Initialisation de la population
 		for i in range(limite):
-			population.append(self.randCent(self.data, k))
+			population.append(self.randCent())
 
 		while count < limite:
 			newpop = []
-			print count
+			# print count
 
 			for ind in range(len(population)):
 				p = rnd.random()
  				if(p < 0.1):
-					population[ind] = self.mutate(population[ind],k)
-				individu, score = self.objectiveFunction(population[ind],k)
+					population[ind] = self.mutate(population[ind])
+				individu, score,clusterAssment = self.objectiveFunction(population[ind])
 				population[ind] = (individu,score)
 
 			population = sorted(population, key=lambda ind: ind[1])
 
 			bestIndividuLocal = population[0][1]
-			print bestIndividuGlobal
-			print bestIndividuLocal
+			# print bestIndividuGlobal
+			# print bestIndividuLocal
 			if(bestIndividuGlobal == 0 or bestIndividuLocal < bestIndividuGlobal ):
+				individu, score,clusterAssment = self.objectiveFunction(population[0][0])
 				bestIndividuGlobal = bestIndividuLocal
+				self.score = score
+				self.centroids = individu
+				self.clusterAssment = clusterAssment
 			
 			#Generation des tuples des 2 parmi 10 parents	
 			for i in range(0,10):
@@ -165,7 +175,47 @@ class Clustering:
 		print "Meilleur genetique : " + str(bestIndividuGlobal)
 		return bestIndividuGlobal
 
-	def kmeans(self):
-		print "not implemented"
-	def geneticAlgorithm(self):
-		print "not implemented"
+	def kMeans(self):
+		dataSet = self.data
+		k = self.k
+		self.shape = shape(self.data)[1]
+		listmin = []
+		listrange = []
+		for j in range(self.shape):
+			listmin.append(min(self.data[:,j]))
+			listrange.append(float(max(self.data[:,j]) - listmin[j]))
+		self.minJ = listmin
+		self.rangeJ = listrange
+		
+		self.m = shape(self.data)[0]
+		#Algorithne des k-moyennes
+		m = shape(dataSet)[0]
+		clusterAssment = mat(zeros((m,2)))
+		centroids = self.randCent()
+		clusterChanged = True
+		while clusterChanged:
+			clusterChanged = False
+			for i in range(m):
+				minDist = inf; minIndex = -1
+				for j in range(k):
+					distJI = self.distEuclid(centroids[j,:],dataSet[i,:])
+					if distJI < minDist:
+						minDist = distJI; minIndex = j
+				#Si un des elements change de centroide on repart pour un tour pour optimiser encore la distance globale
+				if clusterAssment[i,0] != minIndex: clusterChanged = True
+				#On ajoute l'assignation de cluster et la distance par rapport a son centre
+				clusterAssment[i,:] = minIndex,minDist**2
+			# On redefinit les centroides a partir de la moyenne du cluster
+			for cent in range(k):
+
+				ptsInClust = dataSet[nonzero(clusterAssment[:,0].A==cent)[0]]
+				if(ptsInClust.size != 0):
+					# print ptsInClust
+					
+					centroids[cent,:] = mean(ptsInClust, axis=0)
+			#On affiche la somme des distances des k centroids par rapport aux donnes pour la comparer a l'algo genetique
+			# print np.sum(clusterAssment[:,1])
+		self.score = np.sum(clusterAssment[:,1])
+		self.centroids = centroids
+		self.clusterAssment = clusterAssment
+		return centroids, clusterAssment

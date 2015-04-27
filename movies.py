@@ -26,3 +26,8 @@ class Movie:
 		self.war = int(war)
 		self.western = int(western)
 		self.vecteur = vecteur
+		self.totalNotes = 0
+		self.nbNotes = 0
+		self.avg = 0
+		self.cluster = -1
+
